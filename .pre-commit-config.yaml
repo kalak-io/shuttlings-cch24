@@ -1,0 +1,47 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+    -   id: check-added-large-files
+    -   id: check-case-conflict
+    -   id: check-json
+    -   id: check-merge-conflict
+    -   id: check-toml
+    -   id: check-yaml
+    -   id: destroyed-symlinks
+    -   id: detect-private-key
+    -   id: end-of-file-fixer
+    -   id: pretty-format-json
+        args: [--autofix, --indent=4, --no-sort-keys]
+    -   id: trailing-whitespace
+-   repo: local
+    hooks:
+      - id: cargofmt
+        name: Cargo Format
+        language: system
+        entry: cargo fmt
+        args: ["--"]
+        types: [rust]
+      - id: cargocheck
+        name: Cargo Check
+        language: system
+        entry: cargo check
+        args: ["--all-targets"]
+        types: [rust]
+        pass_filenames: false
+      - id: cargotest
+        name: Cargo Test
+        language: system
+        entry: cargo test
+        args: ['--verbose']
+        types: [rust]
+        pass_filenames: false
+      - id: clippy
+        name: Cargo Clippy
+        language: system
+        entry: cargo clippy
+        args: ["--", "-D", "warnings"]
+        types: [rust]
+        pass_filenames: false
