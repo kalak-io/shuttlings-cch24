@@ -1,6 +1,6 @@
-use std::net::{Ipv4Addr, Ipv6Addr};
 use crate::ip_utils::{add_ip_addresses, subtract_ip_addresses, xor_ipv6_addresses};
-use rstest::{rstest, fixture};
+use rstest::{fixture, rstest};
+use std::net::{Ipv4Addr, Ipv6Addr};
 
 #[cfg(test)]
 mod tests {
@@ -73,7 +73,7 @@ mod tests {
         let addr1 = Ipv4Addr::from(test_case.addr1);
         let addr2 = Ipv4Addr::from(test_case.addr2);
         let expected = Ipv4Addr::from(test_case.expected);
-        
+
         let result = add_ip_addresses(addr1, addr2);
         assert_eq!(result, expected);
     }
@@ -103,7 +103,7 @@ mod tests {
         let addr1 = Ipv4Addr::from(test_case.addr1);
         let addr2 = Ipv4Addr::from(test_case.addr2);
         let expected = Ipv4Addr::from(test_case.expected);
-        
+
         let result = subtract_ip_addresses(addr1, addr2);
         assert_eq!(result, expected);
     }
@@ -125,7 +125,7 @@ mod tests {
         let addr1 = Ipv6Addr::from(test_case.addr1);
         let addr2 = Ipv6Addr::from(test_case.addr2);
         let expected = Ipv6Addr::from(test_case.expected);
-        
+
         let result = xor_ipv6_addresses(addr1, addr2);
         assert_eq!(result, expected);
     }

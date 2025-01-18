@@ -5,10 +5,12 @@ edition = "2021"
 
 [dependencies]
 actix-web = "4.3.1"
+cargo-manifest = "0.19.1"
 serde = "1.0.217"
 shuttle-actix-web = "0.51.0"
 shuttle-runtime = "0.51.0"
 tokio = "1.26.0"
+toml = "0.8.19"
 
 [dev-dependencies]
 rstest = "0.18.2"

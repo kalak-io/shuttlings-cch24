@@ -1,11 +1,13 @@
 use actix_web::{
     get,
     http::header,
+    post,
     web::{Query, ServiceConfig},
     HttpResponse, Result,
 };
 use serde::Deserialize;
 use shuttle_actix_web::ShuttleActixWeb;
+use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::net::{Ipv4Addr, Ipv6Addr};
 
 mod ip_utils;
@@ -39,6 +41,17 @@ struct KeyQuery<T> {
     to: T,
 }
 
+#[derive(Deserialize)]
+struct Order {
+    item: String,
+    quantity: u32,
+}
+impl Display for Order {
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        write!(f, "{}: {}", self.item, self.quantity)
+    }
+}
+
 #[get("/2/dest")]
 async fn dest_v4(query: Query<DestQuery<Ipv4Addr>>) -> Result<String> {
     let result = ip_utils::add_ip_addresses(query.from, query.key);
@@ -61,6 +74,15 @@ async fn dest_v6(query: Query<DestQuery<Ipv6Addr>>) -> Result<String> {
 async fn key_v6(query: Query<KeyQuery<Ipv6Addr>>) -> Result<String> {
     let result = ip_utils::xor_ipv6_addresses(query.from, query.to);
     Ok(format!("{}", result))
+}
+
+#[post("/5/manifest")]
+async fn manifest() -> HttpResponse {
+    // this endpoint receive data from the client
+    // this data could be a `Content-Type: application/toml`
+    // or `Content-Type: application/json`
+    // the data need to be saved in the appropriate format file
+    todo!()
 }
 
 #[shuttle_runtime::main]
