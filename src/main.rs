@@ -10,7 +10,8 @@ use shuttle_actix_web::ShuttleActixWeb;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::net::{Ipv4Addr, Ipv6Addr};
 
-mod ip_utils;
+mod utils;
+use utils::ip::{add_ip_addresses, subtract_ip_addresses, xor_ipv6_addresses};
 
 #[get("/")]
 async fn hello_bird() -> &'static str {
@@ -52,25 +53,25 @@ impl Display for Order {
 
 #[get("/2/dest")]
 async fn dest_v4(query: Query<DestQuery<Ipv4Addr>>) -> Result<String> {
-    let result = ip_utils::add_ip_addresses(query.from, query.key);
+    let result = add_ip_addresses(query.from, query.key);
     Ok(format!("{}", result))
 }
 
 #[get("/2/key")]
 async fn key_v4(query: Query<KeyQuery<Ipv4Addr>>) -> Result<String> {
-    let result = ip_utils::subtract_ip_addresses(query.to, query.from);
+    let result = subtract_ip_addresses(query.to, query.from);
     Ok(format!("{}", result))
 }
 
 #[get("/2/v6/dest")]
 async fn dest_v6(query: Query<DestQuery<Ipv6Addr>>) -> Result<String> {
-    let result = ip_utils::xor_ipv6_addresses(query.from, query.key);
+    let result = xor_ipv6_addresses(query.from, query.key);
     Ok(format!("{}", result))
 }
 
 #[get("/2/v6/key")]
 async fn key_v6(query: Query<KeyQuery<Ipv6Addr>>) -> Result<String> {
-    let result = ip_utils::xor_ipv6_addresses(query.from, query.to);
+    let result = xor_ipv6_addresses(query.from, query.to);
     Ok(format!("{}", result))
 }
 
