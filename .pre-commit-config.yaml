@@ -31,17 +31,17 @@ repos:
         args: ["--all-targets"]
         types: [rust]
         pass_filenames: false
-      - id: cargotest
-        name: Cargo Test
-        language: system
-        entry: cargo test
-        args: ['--verbose']
-        types: [rust]
-        pass_filenames: false
       - id: clippy
         name: Cargo Clippy
         language: system
         entry: cargo clippy
         args: ["--", "-D", "warnings"]
+        types: [rust]
+        pass_filenames: false
+      - id: cargotest
+        name: Cargo Test
+        language: system
+        entry: cargo test
+        args: ['--verbose']
         types: [rust]
         pass_filenames: false
