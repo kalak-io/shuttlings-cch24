@@ -1,6 +1,9 @@
-use crate::ip_utils::{add_ip_addresses, subtract_ip_addresses, xor_ipv6_addresses};
 use rstest::{fixture, rstest};
 use std::net::{Ipv4Addr, Ipv6Addr};
+
+#[path = "../src/ip_utils.rs"]
+mod ip_utils;
+use ip_utils::{add_ip_addresses, subtract_ip_addresses, xor_ipv6_addresses};
 
 #[cfg(test)]
 mod tests {
