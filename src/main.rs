@@ -2,8 +2,8 @@ use actix_web::{
     get,
     http::header,
     post,
-    web::{Query, ServiceConfig},
-    HttpResponse, Result,
+    web::{Bytes, Query, ServiceConfig},
+    HttpRequest, HttpResponse, Result,
 };
 use serde::Deserialize;
 use shuttle_actix_web::ShuttleActixWeb;
@@ -40,7 +40,7 @@ struct KeyQuery<T> {
     to: T,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 struct Order {
     item: String,
     quantity: u32,
@@ -49,6 +49,19 @@ impl Display for Order {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         write!(f, "{}: {}", self.item, self.quantity)
     }
+}
+
+#[derive(Debug, Deserialize)]
+struct PackageMetadata {
+    _orders: Vec<Order>,
+}
+
+#[derive(Debug, Deserialize)]
+struct Package {
+    _name: String,
+    _authors: Vec<String>,
+    _keywords: Vec<String>,
+    _metadata: PackageMetadata,
 }
 
 #[get("/2/dest")]
@@ -76,12 +89,24 @@ async fn key_v6(query: Query<KeyQuery<Ipv6Addr>>) -> Result<String> {
 }
 
 #[post("/5/manifest")]
-async fn manifest() -> HttpResponse {
-    // this endpoint receive data from the client
-    // this data could be a `Content-Type: application/toml`
-    // or `Content-Type: application/json`
-    // the data need to be saved in the appropriate format file
-    todo!()
+pub async fn manifest(request: HttpRequest, _body: Bytes) -> HttpResponse {
+    let content_type = request
+        .headers()
+        .get(header::CONTENT_TYPE)
+        .and_then(|h| h.to_str().ok())
+        .unwrap_or("");
+
+    match content_type {
+        "application/toml" => {
+            // Handle TOML content
+            todo!()
+        }
+        "application/json" => {
+            // Handle JSON content
+            todo!()
+        }
+        _ => HttpResponse::UnsupportedMediaType().finish(),
+    }
 }
 
 #[shuttle_runtime::main]
@@ -92,7 +117,8 @@ async fn main() -> ShuttleActixWeb<impl FnOnce(&mut ServiceConfig) + Send + Clon
             .service(dest_v4)
             .service(key_v4)
             .service(dest_v6)
-            .service(key_v6);
+            .service(key_v6)
+            .service(manifest);
     };
 
     Ok(config.into())
