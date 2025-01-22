@@ -53,15 +53,17 @@ impl Display for Order {
 
 #[derive(Debug, Deserialize)]
 struct PackageMetadata {
-    _orders: Vec<Order>,
+    orders: Vec<Order>,
 }
 
 #[derive(Debug, Deserialize)]
 struct Package {
-    _name: String,
-    _authors: Vec<String>,
-    _keywords: Vec<String>,
-    _metadata: PackageMetadata,
+    metadata: PackageMetadata,
+}
+
+#[derive(Debug, Deserialize)]
+struct PackageWrapper {
+    package: Package,
 }
 
 #[get("/2/dest")]
@@ -89,7 +91,7 @@ async fn key_v6(query: Query<KeyQuery<Ipv6Addr>>) -> Result<String> {
 }
 
 #[post("/5/manifest")]
-pub async fn manifest(request: HttpRequest, _body: Bytes) -> HttpResponse {
+pub async fn manifest(request: HttpRequest, body: Bytes) -> HttpResponse {
     let content_type = request
         .headers()
         .get(header::CONTENT_TYPE)
@@ -98,8 +100,29 @@ pub async fn manifest(request: HttpRequest, _body: Bytes) -> HttpResponse {
 
     match content_type {
         "application/toml" => {
-            // Handle TOML content
-            todo!()
+            let content = String::from_utf8_lossy(&body);
+            let wrapper =
+                toml::from_str::<PackageWrapper>(&content).map_err(|_| "Invalid manifest");
+
+            match wrapper {
+                Ok(w) => {
+                    let response = w
+                        .package
+                        .metadata
+                        .orders
+                        .iter()
+                        .map(|order| order.to_string())
+                        .collect::<Vec<_>>()
+                        .join("\n");
+
+                    if response.is_empty() {
+                        HttpResponse::NoContent().finish()
+                    } else {
+                        HttpResponse::Ok().body(response)
+                    }
+                }
+                Err(e) => HttpResponse::BadRequest().body(e),
+            }
         }
         "application/json" => {
             // Handle JSON content
