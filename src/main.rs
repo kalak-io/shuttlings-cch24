@@ -12,7 +12,7 @@ use std::net::{Ipv4Addr, Ipv6Addr};
 
 mod ip_utils;
 #[cfg(test)]
-mod tests;
+mod test_ip_utils;
 
 #[get("/")]
 async fn hello_bird() -> &'static str {
