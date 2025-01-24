@@ -1,7 +1,6 @@
 name: Shuttle deployment
 
 on:
-  pull_request:
   push:
     branches:
       - main
@@ -32,7 +31,7 @@ jobs:
         run: cargo fmt --all -- --check
 
       - name: Clippy
-        run: cargo clippy --verbose --all-targets --all-features -- -D warnings --release
+        run: cargo clippy --verbose --all-targets --all-features -- -D warnings
 
   tests:
     strategy:
@@ -41,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4.1.7
+      - uses: actions/checkout@v4
 
       - name: Setup Rust toolchain and cache
         uses: actions-rust-lang/setup-rust-toolchain@v1.10.1
@@ -50,13 +49,12 @@ jobs:
         run: cargo test --verbose --all-targets --no-fail-fast --release
 
   deploy:
-    needs: tests
+    needs: [fmt-lint, tests]
 
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
       - uses: shuttle-hq/deploy-action@v2
         with:
-          shuttle-api-key: ${{ secrets.SHUTTLE_API_KEY }}
           project-id: ${{ secrets.SHUTTLE_PROJECT_ID }}
+          shuttle-api-key: ${{ secrets.SHUTTLE_API_KEY }}
