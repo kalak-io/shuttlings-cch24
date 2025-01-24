@@ -1,36 +1,59 @@
 name: Shuttle deployment
 
 on:
-  push:
-    branches: "main"
   pull_request:
-    branches: "main"
+  push:
+    branches:
+      - main
 
 env:
+  RUST_BACKTRACE: 1
   CARGO_TERM_COLOR: always
+  CLICOLOR: 1
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref && github.ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
-  build:
+  fmt-lint:
+    strategy:
+      fail-fast: true
+
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-      - name: Build
-        run: cargo build --verbose --all-targets --release
+
+      - name: Setup Rust toolchain and cache
+        uses: actions-rust-lang/setup-rust-toolchain@v1.10.1
+
+      - name: cargo fmt
+        run: cargo fmt --all -- --check
+
       - name: Clippy
-        run: cargo clippy --verbose --all-targets --all-features -- -D warnings
+        run: cargo clippy --verbose --all-targets --all-features -- -D warnings --release
 
-  test:
-    needs: build
+  tests:
+    strategy:
+      fail-fast: true
+
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Run tests
+      - uses: actions/checkout@v4.1.7
+
+      - name: Setup Rust toolchain and cache
+        uses: actions-rust-lang/setup-rust-toolchain@v1.10.1
+
+      - name: Tests
         run: cargo test --verbose --all-targets --no-fail-fast --release
 
   deploy:
-    needs: test
+    needs: tests
+
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
       - uses: shuttle-hq/deploy-action@v2

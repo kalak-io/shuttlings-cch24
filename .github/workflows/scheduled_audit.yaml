@@ -2,6 +2,12 @@ name: Scheduled Security audit
 on:
   schedule:
     - cron: "0 0 * * *"
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+  CLICOLOR: 1
+
 jobs:
   audit:
     runs-on: ubuntu-latest
